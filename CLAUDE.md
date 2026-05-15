@@ -25,7 +25,7 @@ Next.js 풀스택 할일 관리 앱. 로그인 + 할일 CRUD.
 | 프레임워크 | Next.js 14 (App Router) |
 | 언어 | TypeScript |
 | 인증 | NextAuth.js v5 (Credentials) |
-| DB | PostgreSQL (Neon) |
+| DB | PostgreSQL (Supabase) |
 | ORM | Prisma |
 | 스타일 | Tailwind CSS + shadcn/ui |
 | 서버 상태 | TanStack Query |
