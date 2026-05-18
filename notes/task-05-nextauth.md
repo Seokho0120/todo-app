@@ -125,11 +125,11 @@ NextAuth가 필요한 `/api/auth/signin`, `/api/auth/signout`, `/api/auth/sessio
 
 ---
 
-## proxy.ts (구 middleware.ts)
+## middleware.ts
 
 **비유하자면 — 모든 페이지 입장 전 검사하는 게이트.**
 
-모든 요청이 페이지에 도달하기 전에 이 파일을 거친다.
+모든 요청이 페이지에 도달하기 전에 이 파일을 거친다. 반드시 파일 이름이 `middleware.ts`여야 Next.js가 인식한다.
 
 ```ts
 export default auth((req) => {
@@ -155,9 +155,7 @@ export const config = {
 
 Vue Router의 Navigation Guard (`router.beforeEach`)와 같은 역할이다.
 
-### Next.js 16 변경사항
-
-Next.js 16에서 `middleware.ts` → `proxy.ts`로 파일명이 바뀌었다. 기능은 동일하고 이름만 변경됨.
+> ⚠️ 프로젝트 루트에 `proxy.ts`라는 파일이 남아있는데, 이건 아무 역할도 안 한다. Next.js는 `middleware.ts`만 미들웨어로 인식한다.
 
 ---
 
