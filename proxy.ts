@@ -6,11 +6,15 @@ export default auth((req) => {
   const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register')
 
   if (!isLoggedIn && !isAuthPage) {
-    return Response.redirect(new URL('/login', req.url))
+    const loginUrl = req.nextUrl.clone()
+    loginUrl.pathname = '/login'
+    return Response.redirect(loginUrl)
   }
 
   if (isLoggedIn && isAuthPage) {
-    return Response.redirect(new URL('/todos', req.url))
+    const todosUrl = req.nextUrl.clone()
+    todosUrl.pathname = '/todos'
+    return Response.redirect(todosUrl)
   }
 })
 
