@@ -6,6 +6,7 @@ import { useUIStore } from '@/store/ui-store'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Pencil, Trash2, Check, X, User } from 'lucide-react'
 import { CommentSection } from './comment-section'
 import type { Todo } from '@/hooks/use-todos'
@@ -34,12 +35,8 @@ export function TodoCard({ todo }: { todo: Todo }) {
   }
 
   return (
-    <li
-      className={`bg-white rounded-xl border shadow-sm p-4 space-y-3 ${
-        isOwner ? 'border-l-4 border-l-primary' : ''
-      }`}
-    >
-      <div className="flex items-start gap-2">
+    <Card className={isOwner ? 'border-l-4 border-l-primary' : ''}>
+      <CardContent className="flex items-start gap-2">
         <Checkbox
           checked={todo.done}
           onCheckedChange={handleToggle}
@@ -104,8 +101,10 @@ export function TodoCard({ todo }: { todo: Todo }) {
             </Button>
           </div>
         )}
-      </div>
-      <CommentSection todoId={todo.id} />
-    </li>
+      </CardContent>
+      <CardContent className="pt-0">
+        <CommentSection todoId={todo.id} />
+      </CardContent>
+    </Card>
   )
 }

@@ -142,6 +142,72 @@ Vue에서도 API 데이터는 Pinia의 `action`으로 fetch하고, 모달 열림
 
 ---
 
+## shadcn/ui 사용법
+
+**비유하자면 — 완성된 가구가 아니라 목재 + 설계도를 주는 것.**
+
+Vuetify나 MUI 같은 라이브러리는 패키지를 설치해서 import해서 쓴다. shadcn/ui는 다르다. **컴포넌트 코드를 내 프로젝트에 직접 복사해준다.** `components/ui/card.tsx`가 바로 그 복사된 코드 — 내 코드이기 때문에 마음대로 수정 가능.
+
+### Compound Component 패턴
+
+Card 하나가 여러 함수로 쪼개진 이유: 역할별로 스타일을 분리하기 위해서.
+
+```tsx
+// HTML의 table 구조처럼
+<Card>
+  <CardHeader>
+    <CardTitle>제목</CardTitle>
+    <CardDescription>설명</CardDescription>
+  </CardHeader>
+  <CardContent>본문</CardContent>
+  <CardFooter>버튼</CardFooter>
+</Card>
+```
+
+Vue의 named slot 구조와 역할이 동일하다:
+```vue
+<!-- Vue -->
+<Card>
+  <template #header>제목</template>
+  <template #default>본문</template>
+  <template #footer>버튼</template>
+</Card>
+```
+
+### className으로 커스텀하는 방법
+
+shadcn 컴포넌트 내부는 전부 이 패턴:
+
+```tsx
+// card.tsx 내부
+className={cn("...기본 스타일...", className)}
+```
+
+`cn()`이 기본 스타일 + 내가 넘긴 className을 합쳐준다. Vue의 `:class` 바인딩과 동일한 개념.
+
+```tsx
+// className 없음 → 기본 스타일만
+<Card>
+
+// className 추가 → 기본 스타일 위에 내 스타일이 얹힘
+<Card className="border-l-4 border-l-primary">
+
+// 조건부 스타일
+<Card className={isOwner ? 'border-l-4 border-l-primary' : ''}>
+```
+
+### shadcn 기본 컬러 테마
+
+`globals.css`의 CSS 변수로 전체 색상이 관리된다. 기본 테마는 흑백 계열:
+
+```css
+--primary: oklch(0.205 0 0);  /* 거의 검정 */
+```
+
+`border-l-primary`가 검게 나오는 이유가 이것. 테마 전체를 바꾸고 싶으면 `--primary` 값을 수정하고, 특정 요소만 바꾸고 싶으면 `border-l-blue-500`처럼 Tailwind 색상을 직접 지정하면 된다.
+
+---
+
 ## 트러블슈팅 — 로컬 서버 회색화면
 
 **원인**: 포트 3000이 좀비 프로세스에 점령당한 상태에서 포트 3001로 서버를 실행했는데, `.env.local`의 `NEXTAUTH_URL=http://localhost:3000`이 설정되어 있어 미들웨어 리다이렉트가 3000번으로 가버렸다.

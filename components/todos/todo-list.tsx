@@ -20,10 +20,10 @@ export function TodoList() {
   }
 
   return (
-    <ul className="space-y-3">
+    <div className="space-y-3">
       {todos.map((todo) => (
         <TodoCard key={todo.id} todo={todo} />
       ))}
-    </ul>
+    </div>
   )
 }
