@@ -155,3 +155,85 @@ prisma generate → tsc → lint → test
 | **CD** | 검증 통과 후 자동 배포 | GitHub Actions → Vercel CLI |
 
 Vercel GitHub 연동의 자동배포를 끄고, GitHub Actions가 CI 통과 후 직접 Vercel에 배포 명령을 내리는 구조. 현업에서 Jenkins/GitHub Actions가 CI/CD를 통합 관리하는 패턴과 동일하다.
+
+---
+
+## CD 구성 방법
+
+### 1. GitHub Secrets 등록
+
+민감한 값(토큰, ID)은 코드에 직접 쓰면 안 된다. GitHub Secrets에 저장하면 Actions에서 `${{ secrets.KEY }}` 형태로 안전하게 사용할 수 있다.
+
+**GitHub 레포 → Settings → Secrets and variables → Actions**에서 3개 등록:
+
+| Secret 이름 | 용도 |
+|-------------|------|
+| `VERCEL_TOKEN` | Vercel API 인증 토큰 (vercel.com/account/tokens에서 발급) |
+| `VERCEL_PROJECT_ID` | 배포할 프로젝트 ID (Vercel 프로젝트 Settings에서 확인) |
+| `VERCEL_ORG_ID` | Vercel 팀/계정 ID |
+
+**비유하자면 — 금고에 열쇠를 보관하는 것.** 코드에 직접 토큰을 쓰면 GitHub에 노출된다. Secrets에 저장하면 Actions 실행 시에만 꺼내 쓰고, 로그에도 `***`로 마스킹된다.
+
+---
+
+### 2. Vercel 자동배포 비활성화
+
+GitHub Actions가 배포를 담당하므로 Vercel의 자동배포는 꺼야 한다. 중복 배포를 방지하기 위해.
+
+**Vercel 대시보드 → Settings → Build and Deployment → Ignored Build Step → `Don't build anything`**
+
+---
+
+### 3. deploy job 추가
+
+```yaml
+deploy:
+  needs: ci                                              # ci job이 통과해야 실행
+  if: github.ref == 'refs/heads/main' && github.event_name == 'push'  # main push일 때만
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 10
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: pnpm
+    - run: pnpm install
+
+    - name: Vercel CLI 설치
+      run: npm install -g vercel
+
+    - name: Vercel 배포
+      run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+      env:
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+```
+
+**핵심 포인트:**
+- `needs: ci` — ci job이 ✅ 통과해야만 deploy job이 실행된다. 테스트 실패한 코드는 절대 배포 안 됨.
+- `if: github.ref == 'refs/heads/main'` — PR에서는 CI만 실행, main push 때만 CD까지 실행.
+- `vercel deploy --prod` — 프로덕션 배포. `--prod` 없으면 preview 배포.
+
+---
+
+## 최종 실행 흐름
+
+```
+push to main
+    ↓
+[CI job]
+코드 체크아웃 → pnpm install → prisma generate
+→ tsc → lint → test
+    ↓ 통과하면
+[Deploy job]
+코드 체크아웃 → pnpm install
+→ vercel deploy --prod
+    ↓
+Vercel 프로덕션 배포 완료 ✅
+```
+
+PR을 올릴 때는 CI만 실행되고 배포는 안 된다. main에 merge(push)될 때만 CD까지 실행된다.
