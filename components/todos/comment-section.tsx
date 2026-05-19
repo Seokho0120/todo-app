@@ -3,8 +3,6 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useComments, useCreateComment } from '@/hooks/use-comments'
 import { useUIStore } from '@/store/ui-store'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { MessageCircle } from 'lucide-react'
 import { CommentItem } from './comment-item'
 
@@ -23,23 +21,23 @@ export function CommentSection({ todoId }: { todoId: number }) {
   }
 
   return (
-    <div className="border-t pt-2 mt-2">
+    <div className="border-t border-[#4d4d4d] pt-3 mt-1">
       <button
         onClick={() => setOpenCommentTodoId(isOpen ? null : todoId)}
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-1.5 text-sm text-[#b3b3b3] hover:text-white transition-colors"
       >
         <MessageCircle className="w-4 h-4" />
-        댓글 {comments?.length ?? 0}개
-        <span className="text-xs ml-1">{isOpen ? '▲ 접기' : '▼ 펼치기'}</span>
+        <span>댓글 {comments?.length ?? 0}개</span>
+        <span className="text-xs ml-0.5">{isOpen ? '▲' : '▼'}</span>
       </button>
 
       {isOpen && (
         <div className="mt-3 space-y-2">
           {isLoading && (
-            <p className="text-xs text-muted-foreground">불러오는 중...</p>
+            <p className="text-xs text-[#b3b3b3]">불러오는 중...</p>
           )}
           {!isLoading && comments?.length === 0 && (
-            <p className="text-xs text-muted-foreground">첫 번째 댓글을 남겨보세요!</p>
+            <p className="text-xs text-[#b3b3b3]">첫 번째 댓글을 남겨보세요!</p>
           )}
           {comments?.map((comment) => (
             <CommentItem
@@ -51,16 +49,20 @@ export function CommentSection({ todoId }: { todoId: number }) {
           ))}
           {session && (
             <form onSubmit={handleSubmit} className="flex gap-2 pt-1">
-              <Input
-                placeholder="댓글을 입력하세요"
+              <input
+                placeholder="댓글을 입력하세요..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 disabled={isPending}
-                className="h-8 text-sm"
+                className="flex-1 h-8 px-4 rounded-full bg-[#1f1f1f] text-sm text-white placeholder:text-[#b3b3b3] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none focus:shadow-[rgb(18,18,18)_0px_1px_0px,rgb(255,255,255)_0px_0px_0px_1px_inset] transition-all"
               />
-              <Button type="submit" size="sm" disabled={isPending || !content.trim()}>
+              <button
+                type="submit"
+                disabled={isPending || !content.trim()}
+                className="h-8 px-4 rounded-full bg-[#1ed760] text-black text-xs font-bold uppercase tracking-[1.4px] hover:bg-[#1fdf64] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+              >
                 등록
-              </Button>
+              </button>
             </form>
           )}
         </div>
